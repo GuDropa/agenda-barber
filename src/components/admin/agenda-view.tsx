@@ -12,8 +12,8 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { format, parseISO, isToday, isTomorrow } from "date-fns";
-import { ptBR } from "date-fns/locale";
+import { parseISO, isToday, isTomorrow } from "date-fns";
+import { safeFormatDate } from "@/lib/utils";
 import {
   User,
   Phone,
@@ -44,10 +44,12 @@ function groupByDate(
 }
 
 function getDateLabel(dateStr: string): string {
-  const date = parseISO(dateStr);
-  if (isToday(date)) return "Hoje";
-  if (isTomorrow(date)) return "Amanhã";
-  return format(date, "EEEE, dd 'de' MMMM", { locale: ptBR });
+  try {
+    const date = parseISO(dateStr);
+    if (isToday(date)) return "Hoje";
+    if (isTomorrow(date)) return "Amanhã";
+  } catch { /* fallthrough */ }
+  return safeFormatDate(dateStr, "EEEE, dd 'de' MMMM");
 }
 
 const statusColors: Record<string, string> = {
@@ -186,9 +188,7 @@ export function AgendaView({
               <div className="flex items-center gap-2 text-sm">
                 <CalendarDays className="h-4 w-4 text-muted-foreground shrink-0" />
                 <span>
-                  {format(parseISO(cancelTarget.date), "dd 'de' MMMM (EEEE)", {
-                    locale: ptBR,
-                  })}
+                  {safeFormatDate(cancelTarget.date)}
                 </span>
               </div>
               <div className="flex items-center gap-2 text-sm">

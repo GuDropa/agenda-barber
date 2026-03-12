@@ -18,9 +18,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { format, parseISO } from "date-fns";
-import { ptBR } from "date-fns/locale";
 import { Plus, Trash2, CalendarOff } from "lucide-react";
+import { safeFormatDate } from "@/lib/utils";
 
 interface DayOffManagementProps {
   dayOffs: DayOff[];
@@ -107,9 +106,7 @@ export function DayOffManagement({
               >
                 <div>
                   <p className="font-medium text-sm">
-                    {format(parseISO(off.date), "dd 'de' MMMM (EEEE)", {
-                      locale: ptBR,
-                    })}
+                    {safeFormatDate(off.date)}
                   </p>
                   {off.reason && (
                     <p className="text-xs text-muted-foreground">

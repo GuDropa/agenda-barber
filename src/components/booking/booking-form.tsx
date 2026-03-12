@@ -13,8 +13,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Service } from "@/lib/types";
-import { format, parseISO } from "date-fns";
-import { ptBR } from "date-fns/locale";
+import { safeFormatDate } from "@/lib/utils";
 import {
   CalendarDays,
   Clock,
@@ -69,9 +68,7 @@ export function BookingForm({
 
   const phoneValue = watch("clientPhone");
 
-  const dateFormatted = format(parseISO(date), "dd 'de' MMMM (EEEE)", {
-    locale: ptBR,
-  });
+  const dateFormatted = safeFormatDate(date);
 
   return (
     <section className="px-4 pb-6">

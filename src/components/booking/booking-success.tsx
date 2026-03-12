@@ -3,8 +3,7 @@
 import { BookingData } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { format, parseISO } from "date-fns";
-import { ptBR } from "date-fns/locale";
+import { safeFormatDate } from "@/lib/utils";
 import {
   CheckCircle2,
   CalendarDays,
@@ -20,11 +19,7 @@ interface BookingSuccessProps {
 }
 
 export function BookingSuccess({ booking, onNewBooking }: BookingSuccessProps) {
-  const dateFormatted = format(
-    parseISO(booking.date),
-    "dd 'de' MMMM (EEEE)",
-    { locale: ptBR }
-  );
+  const dateFormatted = safeFormatDate(booking.date);
 
   return (
     <section className="px-4 pb-6 pt-8">

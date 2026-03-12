@@ -1,6 +1,5 @@
 import { BookingData } from "./types";
-import { format, parseISO } from "date-fns";
-import { ptBR } from "date-fns/locale";
+import { safeFormatDate } from "./utils";
 import { evolutionApi, brand } from "@/config/brand";
 
 interface EvolutionApiResponse {
@@ -66,7 +65,7 @@ export interface NotificationResult {
 }
 
 function formatDate(dateStr: string): string {
-  return format(parseISO(dateStr), "dd 'de' MMMM", { locale: ptBR });
+  return safeFormatDate(dateStr, "dd 'de' MMMM");
 }
 
 export class NotificationService {
