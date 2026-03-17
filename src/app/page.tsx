@@ -3,6 +3,7 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
 import { format } from "date-fns";
 import { HeroSection } from "@/components/booking/hero-section";
+import { brand } from "@/config/brand";
 import { ServiceSelector } from "@/components/booking/service-selector";
 import { CalendarPicker } from "@/components/booking/calendar-picker";
 import { TimeSlots } from "@/components/booking/time-slots";
@@ -210,7 +211,11 @@ export default function HomePage() {
 
   return (
     <main className="min-h-dvh max-w-lg mx-auto pb-8">
-      <HeroSection />
+      <HeroSection
+        name={brand.name}
+        tagline={brand.tagline}
+        logo={brand.logo}
+      />
 
       {step !== "success" && <StepIndicator current={step} />}
 

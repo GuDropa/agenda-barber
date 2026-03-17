@@ -1,6 +1,7 @@
 "use server";
 
 import * as airtable from "@/lib/airtable";
+import { getCurrentTenantBaseId } from "@/lib/tenant";
 import { Service } from "@/lib/types";
 import { mockServices } from "@/lib/mock-data";
 
@@ -17,9 +18,12 @@ function mapRecord(record: airtable.AirtableRecord): Service {
 }
 
 export async function getServices(): Promise<Service[]> {
-  const records = await airtable.listRecords("Services", {
-    sort: [{ field: "Name", direction: "asc" }],
-  });
+  const baseId = await getCurrentTenantBaseId();
+  const records = await airtable.listRecords(
+    "Services",
+    { sort: [{ field: "Name", direction: "asc" }] },
+    baseId
+  );
   if (!records) return mockServices;
   return records.map(mapRecord);
 }
@@ -27,13 +31,18 @@ export async function getServices(): Promise<Service[]> {
 export async function createService(
   data: Omit<Service, "id" | "active">
 ): Promise<Service | null> {
-  const record = await airtable.createRecord("Services", {
-    Name: data.name,
-    Description: data.description || "",
-    Price: data.price,
-    DurationMinutes: data.durationMinutes,
-    Active: true,
-  });
+  const baseId = await getCurrentTenantBaseId();
+  const record = await airtable.createRecord(
+    "Services",
+    {
+      Name: data.name,
+      Description: data.description || "",
+      Price: data.price,
+      DurationMinutes: data.durationMinutes,
+      Active: true,
+    },
+    baseId
+  );
   if (!record) return null;
   return mapRecord(record);
 }
@@ -42,6 +51,7 @@ export async function updateService(
   id: string,
   data: Partial<Service>
 ): Promise<Service | null> {
+  const baseId = await getCurrentTenantBaseId();
   const fields: Record<string, unknown> = {};
   if (data.name !== undefined) fields.Name = data.name;
   if (data.description !== undefined) fields.Description = data.description;
@@ -49,11 +59,12 @@ export async function updateService(
   if (data.durationMinutes !== undefined) fields.DurationMinutes = data.durationMinutes;
   if (data.active !== undefined) fields.Active = data.active;
 
-  const record = await airtable.updateRecord("Services", id, fields);
+  const record = await airtable.updateRecord("Services", id, fields, baseId);
   if (!record) return null;
   return mapRecord(record);
 }
 
 export async function deleteService(id: string): Promise<boolean> {
-  return airtable.deleteRecord("Services", id);
+  const baseId = await getCurrentTenantBaseId();
+  return airtable.deleteRecord("Services", id, baseId);
 }

@@ -1,6 +1,7 @@
 "use server";
 
 import * as airtable from "@/lib/airtable";
+import { getCurrentTenantBaseId } from "@/lib/tenant";
 import { ScheduleSettings, DayOff } from "@/lib/types";
 import { mockScheduleSettings, mockDayOffs } from "@/lib/mock-data";
 
@@ -19,7 +20,12 @@ function mapSettings(record: airtable.AirtableRecord): ScheduleSettings {
 }
 
 export async function getScheduleSettings(): Promise<ScheduleSettings> {
-  const records = await airtable.listRecords("Settings", { maxRecords: 1 });
+  const baseId = await getCurrentTenantBaseId();
+  const records = await airtable.listRecords(
+    "Settings",
+    { maxRecords: 1 },
+    baseId
+  );
   if (!records || records.length === 0) return mockScheduleSettings;
   return mapSettings(records[0]);
 }
@@ -27,6 +33,7 @@ export async function getScheduleSettings(): Promise<ScheduleSettings> {
 export async function updateScheduleSettings(
   data: ScheduleSettings
 ): Promise<ScheduleSettings | null> {
+  const baseId = await getCurrentTenantBaseId();
   const fields = {
     StartTime: data.startTime,
     EndTime: data.endTime,
@@ -36,19 +43,33 @@ export async function updateScheduleSettings(
   };
 
   if (data.id && data.id !== "settings-1") {
-    const record = await airtable.updateRecord("Settings", data.id, fields);
+    const record = await airtable.updateRecord(
+      "Settings",
+      data.id,
+      fields,
+      baseId
+    );
     if (!record) return null;
     return mapSettings(record);
   }
 
-  const existing = await airtable.listRecords("Settings", { maxRecords: 1 });
+  const existing = await airtable.listRecords(
+    "Settings",
+    { maxRecords: 1 },
+    baseId
+  );
   if (existing && existing.length > 0) {
-    const record = await airtable.updateRecord("Settings", existing[0].id, fields);
+    const record = await airtable.updateRecord(
+      "Settings",
+      existing[0].id,
+      fields,
+      baseId
+    );
     if (!record) return null;
     return mapSettings(record);
   }
 
-  const record = await airtable.createRecord("Settings", fields);
+  const record = await airtable.createRecord("Settings", fields, baseId);
   if (!record) return null;
   return mapSettings(record);
 }
@@ -65,9 +86,12 @@ function mapDayOff(record: airtable.AirtableRecord): DayOff {
 }
 
 export async function getDayOffs(): Promise<DayOff[]> {
-  const records = await airtable.listRecords("DayOffs", {
-    sort: [{ field: "Date", direction: "asc" }],
-  });
+  const baseId = await getCurrentTenantBaseId();
+  const records = await airtable.listRecords(
+    "DayOffs",
+    { sort: [{ field: "Date", direction: "asc" }] },
+    baseId
+  );
   if (!records) return mockDayOffs;
   return records.map(mapDayOff);
 }
@@ -76,14 +100,17 @@ export async function createDayOff(
   date: string,
   reason?: string
 ): Promise<DayOff | null> {
-  const record = await airtable.createRecord("DayOffs", {
-    Date: date,
-    Reason: reason || "",
-  });
+  const baseId = await getCurrentTenantBaseId();
+  const record = await airtable.createRecord(
+    "DayOffs",
+    { Date: date, Reason: reason || "" },
+    baseId
+  );
   if (!record) return null;
   return mapDayOff(record);
 }
 
 export async function deleteDayOff(id: string): Promise<boolean> {
-  return airtable.deleteRecord("DayOffs", id);
+  const baseId = await getCurrentTenantBaseId();
+  return airtable.deleteRecord("DayOffs", id, baseId);
 }

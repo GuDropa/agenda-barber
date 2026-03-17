@@ -11,9 +11,10 @@ interface AirtableListResponse {
   offset?: string;
 }
 
-function getConfig() {
+/** baseIdOverride: quando passado (ex.: base do tenant), usa em vez do env. */
+function getConfig(baseIdOverride?: string | null) {
   const token = process.env.AIRTABLE_API_TOKEN;
-  const baseId = process.env.AIRTABLE_BASE_ID;
+  const baseId = baseIdOverride ?? process.env.AIRTABLE_BASE_ID;
 
   if (!token || !baseId) return null;
   return { token, baseId };
@@ -36,9 +37,10 @@ export async function listRecords(
     filterByFormula?: string;
     sort?: { field: string; direction: "asc" | "desc" }[];
     maxRecords?: number;
-  }
+  },
+  baseIdOverride?: string | null
 ): Promise<AirtableRecord[] | null> {
-  const config = getConfig();
+  const config = getConfig(baseIdOverride);
   if (!config) return null;
 
   const params = new URLSearchParams();
@@ -73,9 +75,10 @@ export async function listRecords(
 
 export async function getRecord(
   table: string,
-  recordId: string
+  recordId: string,
+  baseIdOverride?: string | null
 ): Promise<AirtableRecord | null> {
-  const config = getConfig();
+  const config = getConfig(baseIdOverride);
   if (!config) return null;
 
   const url = `${AIRTABLE_API_URL}/${config.baseId}/${encodeURIComponent(table)}/${recordId}`;
@@ -95,9 +98,10 @@ export async function getRecord(
 
 export async function createRecord(
   table: string,
-  fields: Record<string, unknown>
+  fields: Record<string, unknown>,
+  baseIdOverride?: string | null
 ): Promise<AirtableRecord | null> {
-  const config = getConfig();
+  const config = getConfig(baseIdOverride);
   if (!config) return null;
 
   const url = `${AIRTABLE_API_URL}/${config.baseId}/${encodeURIComponent(table)}`;
@@ -119,9 +123,10 @@ export async function createRecord(
 export async function updateRecord(
   table: string,
   recordId: string,
-  fields: Record<string, unknown>
+  fields: Record<string, unknown>,
+  baseIdOverride?: string | null
 ): Promise<AirtableRecord | null> {
-  const config = getConfig();
+  const config = getConfig(baseIdOverride);
   if (!config) return null;
 
   const url = `${AIRTABLE_API_URL}/${config.baseId}/${encodeURIComponent(table)}/${recordId}`;
@@ -142,9 +147,10 @@ export async function updateRecord(
 
 export async function deleteRecord(
   table: string,
-  recordId: string
+  recordId: string,
+  baseIdOverride?: string | null
 ): Promise<boolean> {
-  const config = getConfig();
+  const config = getConfig(baseIdOverride);
   if (!config) return false;
 
   const url = `${AIRTABLE_API_URL}/${config.baseId}/${encodeURIComponent(table)}/${recordId}`;

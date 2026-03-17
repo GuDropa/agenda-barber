@@ -1,7 +1,9 @@
 import type { Metadata, Viewport } from "next";
+import type React from "react";
 import { Montserrat } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
+import { getCurrentBrand } from "@/lib/tenant";
 
 const montserrat = Montserrat({
   variable: "--font-montserrat",
@@ -26,15 +28,28 @@ export const viewport: Viewport = {
   themeColor: "#0d0d14",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return (
-    <html lang="pt-BR" className={montserrat.variable}>
-      <body className="antialiased">
+  const brand = await getCurrentBrand();
 
+  return (
+    <html
+      lang="pt-BR"
+      className={montserrat.variable}
+      style={
+        {
+          "--color-primary": brand.colors.primary,
+          "--color-primary-foreground": brand.colors.primaryForeground,
+          "--color-secondary": brand.colors.secondary,
+          "--color-background": brand.colors.background,
+          "--color-gold": brand.colors.gold,
+        } as React.CSSProperties
+      }
+    >
+      <body className="antialiased">
         {children}
         <Toaster position="top-center" richColors />
       </body>

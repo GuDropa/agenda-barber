@@ -1,6 +1,7 @@
 "use server";
 
 import * as airtable from "@/lib/airtable";
+import { getCurrentTenantBaseId } from "@/lib/tenant";
 import { Appointment } from "@/lib/types";
 import { mockAppointments } from "@/lib/mock-data";
 import { format, addDays } from "date-fns";
@@ -30,16 +31,21 @@ function mapRecord(record: airtable.AirtableRecord): Appointment {
 export async function getAppointments(
   daysAhead: number = 30
 ): Promise<Appointment[]> {
+  const baseId = await getCurrentTenantBaseId();
   const today = format(new Date(), "yyyy-MM-dd");
   const futureDate = format(addDays(new Date(), daysAhead), "yyyy-MM-dd");
 
-  const records = await airtable.listRecords("Appointments", {
-    filterByFormula: `AND({Date} >= '${today}', {Date} <= '${futureDate}')`,
-    sort: [
-      { field: "Date", direction: "asc" },
-      { field: "StartTime", direction: "asc" },
-    ],
-  });
+  const records = await airtable.listRecords(
+    "Appointments",
+    {
+      filterByFormula: `AND({Date} >= '${today}', {Date} <= '${futureDate}')`,
+      sort: [
+        { field: "Date", direction: "asc" },
+        { field: "StartTime", direction: "asc" },
+      ],
+    },
+    baseId
+  );
 
   if (!records) return mockAppointments;
   return records.map(mapRecord);
@@ -56,26 +62,35 @@ export async function createAppointment(data: {
   startTime: string;
   endTime: string;
 }): Promise<Appointment | null> {
-  const record = await airtable.createRecord("Appointments", {
-    ServiceId: data.serviceId,
-    ServiceName: data.serviceName,
-    ServicePrice: data.servicePrice,
-    ServiceDuration: data.serviceDuration,
-    ClientName: data.clientName,
-    ClientPhone: data.clientPhone,
-    Date: data.date,
-    StartTime: data.startTime,
-    EndTime: data.endTime,
-    Status: "CONFIRMED",
-  });
+  const baseId = await getCurrentTenantBaseId();
+  const record = await airtable.createRecord(
+    "Appointments",
+    {
+      ServiceId: data.serviceId,
+      ServiceName: data.serviceName,
+      ServicePrice: data.servicePrice,
+      ServiceDuration: data.serviceDuration,
+      ClientName: data.clientName,
+      ClientPhone: data.clientPhone,
+      Date: data.date,
+      StartTime: data.startTime,
+      EndTime: data.endTime,
+      Status: "CONFIRMED",
+    },
+    baseId
+  );
 
   if (!record) return null;
   return mapRecord(record);
 }
 
 export async function cancelAppointment(id: string): Promise<boolean> {
-  const record = await airtable.updateRecord("Appointments", id, {
-    Status: "CANCELLED",
-  });
+  const baseId = await getCurrentTenantBaseId();
+  const record = await airtable.updateRecord(
+    "Appointments",
+    id,
+    { Status: "CANCELLED" },
+    baseId
+  );
   return record !== null;
 }
