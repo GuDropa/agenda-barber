@@ -1,7 +1,7 @@
 import { BookingData } from "./types";
 import { safeFormatDate } from "./utils";
-import { brand } from "@/config/brand";
 import { sendText } from "./uazapi";
+import { getCurrentBrand } from "./tenant";
 
 export interface NotificationResult {
   to: string;
@@ -17,6 +17,7 @@ export class NotificationService {
   static async sendBookingConfirmation(
     booking: BookingData
   ): Promise<NotificationResult> {
+    const brand = await getCurrentBrand();
     const dateFormatted = formatDate(booking.date);
 
     const message =
@@ -44,6 +45,7 @@ export class NotificationService {
   static async notifyBarber(
     booking: BookingData
   ): Promise<NotificationResult> {
+    const brand = await getCurrentBrand();
     const dateFormatted = formatDate(booking.date);
 
     const message =
@@ -76,6 +78,7 @@ export class NotificationService {
     date: string,
     time: string
   ): Promise<NotificationResult> {
+    const brand = await getCurrentBrand();
     const dateFormatted = formatDate(date);
 
     const message =

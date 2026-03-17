@@ -1,49 +1,30 @@
-import { getCurrentBrand } from "@/lib/tenant";
-import { HomePageClient } from "@/components/booking/home-page-client";
-
-export default async function HomePage() {
-  const brand = await getCurrentBrand();
-  return <HomePageClient brand={brand} />;
-}
-
-import { getCurrentBrand } from "@/lib/tenant";
-import { HomePageClient } from "@/components/booking/home-page-client";
-
-export default async function HomePage() {
-  const brand = await getCurrentBrand();
-  return <HomePageClient brand={brand} />;
-}
-
-import { getCurrentBrand } from "@/lib/tenant";
-import { HomePageClient } from "@/components/booking/home-page-client";
-
-export default async function HomePage() {
-  const brand = await getCurrentBrand();
-  return <HomePageClient brand={brand} />;
-}
-
 "use client";
 
 import { useState, useMemo, useEffect, useCallback } from "react";
 import { format } from "date-fns";
 import { HeroSection } from "@/components/booking/hero-section";
-import { brand } from "@/config/brand";
 import { ServiceSelector } from "@/components/booking/service-selector";
 import { CalendarPicker } from "@/components/booking/calendar-picker";
 import { TimeSlots } from "@/components/booking/time-slots";
 import { BookingForm } from "@/components/booking/booking-form";
 import { BookingSuccess } from "@/components/booking/booking-success";
 import { calculateAvailableSlots } from "@/lib/availability";
-import { Service, BookingData, BookingStep, Appointment, ScheduleSettings, DayOff } from "@/lib/types";
+import {
+  Service,
+  BookingData,
+  BookingStep,
+  Appointment,
+  ScheduleSettings,
+  DayOff,
+} from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-
 import { getServices } from "@/app/actions/services";
 import { getAppointments, createAppointment } from "@/app/actions/appointments";
-import { getScheduleSettings } from "@/app/actions/settings";
-import { getDayOffs } from "@/app/actions/settings";
+import { getScheduleSettings, getDayOffs } from "@/app/actions/settings";
+import type { Brand } from "@/config/brand";
 
 const STEPS: { key: BookingStep; label: string }[] = [
   { key: "service", label: "Serviço" },
@@ -68,7 +49,7 @@ function StepIndicator({ current }: { current: BookingStep }) {
             />
             <span
               className={cn(
-                "text-[0.6rem] font-medium transition-colors duration-300",
+                "text-[0.6rem] font-medium transition-colors duração-300",
                 i === currentIdx
                   ? "text-primary"
                   : i < currentIdx
@@ -103,7 +84,7 @@ function LoadingSkeleton() {
   );
 }
 
-export default function HomePage() {
+export function HomePageClient({ brand }: { brand: Brand }) {
   const [step, setStep] = useState<BookingStep>("service");
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -112,7 +93,8 @@ export default function HomePage() {
 
   const [services, setServices] = useState<Service[]>([]);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
-  const [scheduleSettings, setScheduleSettings] = useState<ScheduleSettings | null>(null);
+  const [scheduleSettings, setScheduleSettings] =
+    useState<ScheduleSettings | null>(null);
   const [dayOffs, setDayOffs] = useState<DayOff[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -231,11 +213,7 @@ export default function HomePage() {
 
   return (
     <main className="min-h-dvh max-w-lg mx-auto pb-28">
-      <HeroSection
-        name={brand.name}
-        tagline={brand.tagline}
-        logo={brand.logo}
-      />
+      <HeroSection name={brand.name} tagline={brand.tagline} logo={brand.logo} />
 
       {step !== "success" && <StepIndicator current={step} />}
 
@@ -331,3 +309,4 @@ export default function HomePage() {
     </main>
   );
 }
+
