@@ -101,4 +101,8 @@ Use essa etapa também para validar se o projeto está compilando corretamente a
 - **Dados não aparecem / agenda vazia**:
   - Confirme `AIRTABLE_API_TOKEN` e `AIRTABLE_BASE_ID`.
   - Verifique se as tabelas e campos esperados existem na base.
+- **Horários de atendimento incorretos ou sempre 09:00–20:00**:
+  - A tabela `Settings` precisa ter os campos exatos: `StartTime`, `EndTime`, `LunchStart`, `LunchEnd`, `SlotInterval`.
+  - Formato de horário: `HH:MM` (ex.: `09:00`, `20:00`).
+  - `SlotInterval`: número em minutos (ex.: `30`).
 
