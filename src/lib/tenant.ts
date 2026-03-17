@@ -29,7 +29,7 @@ export async function getBrandForHost(host: string): Promise<Brand> {
     return defaultBrand;
   }
 
-  const records = await listRecords("Tenants", {
+  const records = await listRecords("tblk4ZjUA1u6A6Uqi", {
     filterByFormula: `{Domain} = '${host}'`,
     maxRecords: 1,
   });
