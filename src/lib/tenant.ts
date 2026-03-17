@@ -21,7 +21,6 @@ type TenantFields = {
 };
 
 function isAirtableConfigured() {
-  console.log("isAirtableConfigured", Boolean(process.env.AIRTABLE_API_TOKEN && process.env.AIRTABLE_BASE_ID));
   return Boolean(process.env.AIRTABLE_API_TOKEN && process.env.AIRTABLE_BASE_ID);
 }
 
