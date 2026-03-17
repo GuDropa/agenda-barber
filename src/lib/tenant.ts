@@ -21,11 +21,13 @@ type TenantFields = {
 };
 
 function isAirtableConfigured() {
+  console.log("isAirtableConfigured", Boolean(process.env.AIRTABLE_API_TOKEN && process.env.AIRTABLE_BASE_ID));
   return Boolean(process.env.AIRTABLE_API_TOKEN && process.env.AIRTABLE_BASE_ID);
 }
 
 export async function getBrandForHost(host: string): Promise<Brand> {
   if (!isAirtableConfigured()) {
+    console.log("getBrandForHost", "defaultBrand");
     return defaultBrand;
   }
 
@@ -35,11 +37,12 @@ export async function getBrandForHost(host: string): Promise<Brand> {
   });
 
   if (!records || records.length === 0) {
+    console.log("getBrandForHost", "defaultBrand");
     return defaultBrand;
   }
 
   const fields = records[0].fields as TenantFields;
-
+  console.log("getBrandForHost", "fields", fields);
   return {
     name: fields.Name || defaultBrand.name,
     tagline: fields.Tagline || defaultBrand.tagline,
