@@ -49,7 +49,7 @@ function StepIndicator({ current }: { current: BookingStep }) {
             />
             <span
               className={cn(
-                "text-[0.6rem] font-medium transition-colors duração-300",
+                "text-[0.6rem] font-medium transition-colors duration-300",
                 i === currentIdx
                   ? "text-primary"
                   : i < currentIdx
