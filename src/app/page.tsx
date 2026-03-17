@@ -10,10 +10,9 @@ import { TimeSlots } from "@/components/booking/time-slots";
 import { BookingForm } from "@/components/booking/booking-form";
 import { BookingSuccess } from "@/components/booking/booking-success";
 import { calculateAvailableSlots } from "@/lib/availability";
-import { NotificationService } from "@/lib/notifications";
 import { Service, BookingData, BookingStep, Appointment, ScheduleSettings, DayOff } from "@/lib/types";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowRight, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -193,9 +192,6 @@ export default function HomePage() {
       setAppointments((prev) => [...prev, fallbackApt]);
     }
 
-    await NotificationService.sendBookingConfirmation(booking);
-    await NotificationService.notifyBarber(booking);
-
     toast.success("Agendamento confirmado!");
     setBookingData(booking);
     setStep("success");
@@ -210,7 +206,7 @@ export default function HomePage() {
   };
 
   return (
-    <main className="min-h-dvh max-w-lg mx-auto pb-8">
+    <main className="min-h-dvh max-w-lg mx-auto pb-28">
       <HeroSection
         name={brand.name}
         tagline={brand.tagline}
@@ -231,34 +227,12 @@ export default function HomePage() {
               onSelect={handleServiceSelect}
             />
           )}
-
-          <div className="px-6 pt-2">
-            <Button
-              className="w-full h-14 text-base font-semibold"
-              disabled={!selectedService || loading}
-              onClick={() => setStep("datetime")}
-            >
-              Continuar
-              <ArrowRight className="h-5 w-5 ml-2" />
-            </Button>
-          </div>
         </>
       )}
 
       {/* ETAPA 2 — Selecionar Dia + Horário */}
       {step === "datetime" && selectedService && (
         <>
-          <div className="px-6 mb-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setStep("service")}
-            >
-              <ArrowLeft className="h-4 w-4 mr-1" />
-              Voltar
-            </Button>
-          </div>
-
           <CalendarPicker
             selectedDate={selectedDate}
             onSelectDate={handleDateSelect}
@@ -272,17 +246,6 @@ export default function HomePage() {
               onSelectTime={setSelectedTime}
             />
           )}
-
-          <div className="px-6 pt-2">
-            <Button
-              className="w-full h-14 text-base font-semibold"
-              disabled={!selectedDate || !selectedTime}
-              onClick={() => setStep("confirm")}
-            >
-              Continuar
-              <ArrowRight className="h-5 w-5 ml-2" />
-            </Button>
-          </div>
         </>
       )}
 
@@ -303,6 +266,43 @@ export default function HomePage() {
       {/* ETAPA 4 — Confirmação */}
       {step === "success" && bookingData && (
         <BookingSuccess booking={bookingData} onNewBooking={handleNewBooking} />
+      )}
+
+      {/* Barra fixa de ações no rodapé */}
+      {step !== "success" && (
+        <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-lg bg-background/90 backdrop-blur border-t px-6 pt-3 pb-4">
+          {step === "service" && (
+            <Button
+              className="w-full h-14 text-base font-semibold"
+              disabled={!selectedService || loading}
+              onClick={() => setStep("datetime")}
+            >
+              Continuar
+              <ArrowRight className="h-5 w-5 ml-2" />
+            </Button>
+          )}
+
+          {step === "datetime" && selectedService && (
+            <div className="flex gap-2">
+              <Button
+                variant="ghost"
+                className="h-12 text-sm"
+                onClick={() => setStep("service")}
+              >
+                <ArrowLeft className="h-4 w-4 mr-1" />
+                Voltar
+              </Button>
+              <Button
+                className="flex-1 h-12 text-base font-semibold"
+                disabled={!selectedDate || !selectedTime}
+                onClick={() => setStep("confirm")}
+              >
+                Continuar
+                <ArrowRight className="h-5 w-5 ml-2" />
+              </Button>
+            </div>
+          )}
+        </div>
       )}
     </main>
   );

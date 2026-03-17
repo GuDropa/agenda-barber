@@ -1,62 +1,7 @@
 import { BookingData } from "./types";
 import { safeFormatDate } from "./utils";
-import { evolutionApi, brand } from "@/config/brand";
-
-interface EvolutionApiResponse {
-  key: { id: string };
-  message: { extendedTextMessage?: { text: string } };
-  status: string;
-}
-
-function phoneToJid(phone: string): string {
-  const digits = phone.replace(/\D/g, "");
-  const number = digits.startsWith("55") ? digits : `55${digits}`;
-  return `${number}@s.whatsapp.net`;
-}
-
-async function sendWhatsApp(
-  phone: string,
-  text: string
-): Promise<EvolutionApiResponse | null> {
-  const { baseUrl, apiKey, instance } = evolutionApi;
-
-  if (!apiKey) {
-    console.log("[Evolution API] API key não configurada — modo simulação");
-    console.log(`  Para: ${phone}`);
-    console.log(`  Mensagem: ${text}`);
-    return null;
-  }
-
-  try {
-    const response = await fetch(
-      `${baseUrl}/message/sendText/${instance}`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          apikey: apiKey,
-        },
-        body: JSON.stringify({
-          number: phoneToJid(phone),
-          text,
-        }),
-      }
-    );
-
-    if (!response.ok) {
-      const error = await response.text();
-      console.error("[Evolution API] Erro ao enviar:", response.status, error);
-      return null;
-    }
-
-    const data = (await response.json()) as EvolutionApiResponse;
-    console.log("[Evolution API] Mensagem enviada:", data.key?.id);
-    return data;
-  } catch (error) {
-    console.error("[Evolution API] Falha na conexão:", error);
-    return null;
-  }
-}
+import { brand } from "@/config/brand";
+import { sendText } from "./uazapi";
 
 export interface NotificationResult {
   to: string;
@@ -83,12 +28,16 @@ export class NotificationService {
       `💰 *Valor:* R$ ${booking.service.price}\n\n` +
       `Até lá! 🤙`;
 
-    const result = await sendWhatsApp(booking.clientPhone, message);
+    const result = await sendText({
+      to: booking.clientPhone,
+      text: message,
+      async: true,
+    });
 
     return {
       to: booking.clientPhone,
       message,
-      sent: result !== null,
+      sent: result.ok,
     };
   }
 
@@ -107,12 +56,16 @@ export class NotificationService {
       `💰 *Valor:* R$ ${booking.service.price}`;
 
     const barberPhone = brand.contact.phone;
-    const result = await sendWhatsApp(barberPhone, message);
+    const result = await sendText({
+      to: barberPhone,
+      text: message,
+      async: true,
+    });
 
     return {
       to: barberPhone,
       message,
-      sent: result !== null,
+      sent: result.ok,
     };
   }
 
@@ -133,12 +86,16 @@ export class NotificationService {
       `⏰ *Horário:* ${time}\n\n` +
       `Entre em contato para reagendar: ${brand.contact.phone}`;
 
-    const result = await sendWhatsApp(clientPhone, message);
+    const result = await sendText({
+      to: clientPhone,
+      text: message,
+      async: true,
+    });
 
     return {
       to: clientPhone,
       message,
-      sent: result !== null,
+      sent: result.ok,
     };
   }
 }

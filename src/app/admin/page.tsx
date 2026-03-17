@@ -7,7 +7,6 @@ import { ServiceManagement } from "@/components/admin/service-management";
 import { ScheduleSettingsForm } from "@/components/admin/schedule-settings";
 import { DayOffManagement } from "@/components/admin/day-off-management";
 import { Service, Appointment, ScheduleSettings, DayOff } from "@/lib/types";
-import { NotificationService } from "@/lib/notifications";
 import { brand } from "@/config/brand";
 import { CalendarDays, Scissors, Settings, ArrowLeft, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -73,14 +72,6 @@ export default function AdminPage() {
       prev.map((a) =>
         a.id === id ? { ...a, status: "CANCELLED" as const } : a
       )
-    );
-
-    await NotificationService.sendCancellationNotice(
-      apt.clientPhone,
-      apt.clientName,
-      apt.service?.name || "Serviço",
-      apt.date,
-      apt.startTime
     );
 
     toast.success(
