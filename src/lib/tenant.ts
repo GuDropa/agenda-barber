@@ -39,7 +39,7 @@ export async function getBrandForHost(host: string): Promise<Brand> {
   }
 
   const fields = records[0].fields as TenantFields;
-
+  
   return {
     name: fields.Name || defaultBrand.name,
     tagline: fields.Tagline || defaultBrand.tagline,
@@ -57,11 +57,11 @@ export async function getBrandForHost(host: string): Promise<Brand> {
       address: fields.Address || defaultBrand.contact.address,
       instagram: fields.Instagram || defaultBrand.contact.instagram,
     },
-  } as const;
+  };
 }
 
 export async function getCurrentBrand(): Promise<Brand> {
-  const headersList = headers();
+  const headersList = await headers();
   const host = headersList.get("host") ?? "localhost";
   return getBrandForHost(host);
 }
@@ -74,7 +74,7 @@ export async function getCurrentBrand(): Promise<Brand> {
 export async function getCurrentTenantBaseId(): Promise<string | null> {
   if (!isAirtableConfigured()) return null;
 
-  const headersList = headers();
+  const headersList = await headers();
   const host = headersList.get("host") ?? "localhost";
   const records = await listRecords("Tenants", {
     filterByFormula: `{Domain} = '${host}'`,

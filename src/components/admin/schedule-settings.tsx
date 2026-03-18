@@ -47,6 +47,7 @@ export function ScheduleSettingsForm({
       lunchEnd: settings.lunchEnd,
       slotInterval: settings.slotInterval,
     },
+    values: settings,
   });
 
   const onSubmit = (data: SettingsFormData) => {

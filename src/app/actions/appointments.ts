@@ -2,9 +2,10 @@
 
 import * as airtable from "@/lib/airtable";
 import { getCurrentTenantBaseId } from "@/lib/tenant";
-import { Appointment } from "@/lib/types";
+import { Appointment, BookingData } from "@/lib/types";
 import { mockAppointments } from "@/lib/mock-data";
 import { format, addDays } from "date-fns";
+import { NotificationService } from "@/lib/notifications";
 
 function mapRecord(record: airtable.AirtableRecord): Appointment {
   const f = record.fields;
@@ -81,7 +82,23 @@ export async function createAppointment(data: {
   );
 
   if (!record) return null;
-  return mapRecord(record);
+
+  const appointment = mapRecord(record);
+
+  const booking: BookingData = {
+    service: appointment.service!,
+    date: appointment.date,
+    time: appointment.startTime,
+    clientName: appointment.clientName,
+    clientPhone: appointment.clientPhone,
+  };
+
+  // Notificações via WhatsApp (cliente + barbeiro).
+  // Erros de notificação não impedem a criação do agendamento.
+  void NotificationService.sendBookingConfirmation(booking);
+  void NotificationService.notifyBarber(booking);
+
+  return appointment;
 }
 
 export async function cancelAppointment(id: string): Promise<boolean> {
@@ -92,5 +109,19 @@ export async function cancelAppointment(id: string): Promise<boolean> {
     { Status: "CANCELLED" },
     baseId
   );
-  return record !== null;
+
+  if (!record) return false;
+
+  const apt = mapRecord(record);
+
+  // Notificação de cancelamento para o cliente.
+  void NotificationService.sendCancellationNotice(
+    apt.clientPhone,
+    apt.clientName,
+    apt.service?.name || "Serviço",
+    apt.date,
+    apt.startTime
+  );
+
+  return true;
 }

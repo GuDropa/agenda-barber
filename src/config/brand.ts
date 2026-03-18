@@ -22,4 +22,20 @@ export const evolutionApi = {
   instance: process.env.EVOLUTION_API_INSTANCE || "barberpro",
 } as const;
 
-export type Brand = typeof brand;
+export type Brand = {
+  name: string;
+  tagline: string;
+  logo: string;
+  colors: {
+    primary: string;
+    primaryForeground: string;
+    secondary: string;
+    background: string;
+    gold: string;
+  };
+  contact: {
+    phone: string;
+    address: string;
+    instagram: string;
+  };
+};
