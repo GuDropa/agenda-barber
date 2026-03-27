@@ -3,6 +3,16 @@ import { brand as defaultBrand } from "@/config/brand";
 import type { Brand } from "@/config/brand";
 import { listRecords } from "./airtable";
 
+/** Garante hex válido quando o Airtable envia sem `#` ou com espaços. */
+function normalizeColor(value: string | undefined): string | undefined {
+  if (value == null) return undefined;
+  const v = String(value).trim();
+  if (!v) return undefined;
+  if (/^#[0-9A-Fa-f]{3,8}$/.test(v)) return v;
+  if (/^[0-9A-Fa-f]{3}$|^[0-9A-Fa-f]{6}$|^[0-9A-Fa-f]{8}$/.test(v)) return `#${v}`;
+  return v;
+}
+
 type TenantFields = {
   Domain?: string;
   Name?: string;
@@ -45,12 +55,16 @@ export async function getBrandForHost(host: string): Promise<Brand> {
     tagline: fields.Tagline || defaultBrand.tagline,
     logo: fields.LogoUrl || defaultBrand.logo,
     colors: {
-      primary: fields.PrimaryColor || defaultBrand.colors.primary,
+      primary:
+        normalizeColor(fields.PrimaryColor) ?? defaultBrand.colors.primary,
       primaryForeground:
-        fields.PrimaryForeground || defaultBrand.colors.primaryForeground,
-      secondary: fields.SecondaryColor || defaultBrand.colors.secondary,
-      background: fields.BackgroundColor || defaultBrand.colors.background,
-      gold: fields.GoldColor || defaultBrand.colors.gold,
+        normalizeColor(fields.PrimaryForeground) ??
+        defaultBrand.colors.primaryForeground,
+      secondary:
+        normalizeColor(fields.SecondaryColor) ?? defaultBrand.colors.secondary,
+      background:
+        normalizeColor(fields.BackgroundColor) ?? defaultBrand.colors.background,
+      gold: normalizeColor(fields.GoldColor) ?? defaultBrand.colors.gold,
     },
     contact: {
       phone: fields.Phone || defaultBrand.contact.phone,

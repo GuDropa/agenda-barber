@@ -41,11 +41,12 @@ export default async function RootLayout({
       className={montserrat.variable}
       style={
         {
-          "--color-primary": brand.colors.primary,
-          "--color-primary-foreground": brand.colors.primaryForeground,
-          "--color-secondary": brand.colors.secondary,
-          "--color-background": brand.colors.background,
-          "--color-gold": brand.colors.gold,
+          "--primary": brand.colors.primary,
+          "--primary-foreground": brand.colors.primaryForeground,
+          "--secondary": brand.colors.secondary,
+          "--background": brand.colors.background,
+          "--ring": brand.colors.primary,
+          "--gold": brand.colors.gold,
         } as React.CSSProperties
       }
     >
