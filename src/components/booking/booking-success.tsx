@@ -24,8 +24,8 @@ export function BookingSuccess({ booking, onNewBooking }: BookingSuccessProps) {
   return (
     <section className="px-4 pb-6 pt-8">
       <div className="text-center mb-6">
-        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-500/10 mb-4">
-          <CheckCircle2 className="h-10 w-10 text-green-500" />
+        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 mb-4">
+          <CheckCircle2 className="h-10 w-10 text-primary" />
         </div>
         <h2 className="text-2xl font-bold">Agendado!</h2>
         <p className="text-muted-foreground mt-1">
@@ -33,7 +33,7 @@ export function BookingSuccess({ booking, onNewBooking }: BookingSuccessProps) {
         </p>
       </div>
 
-      <Card className="border-green-500/20">
+      <Card className="border-primary/20">
         <CardContent className="p-6 space-y-4">
           <div className="flex items-center gap-3">
             <Scissors className="h-5 w-5 text-primary shrink-0" />

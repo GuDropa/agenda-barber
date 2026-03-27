@@ -45,6 +45,8 @@ export default async function RootLayout({
           "--primary-foreground": brand.colors.primaryForeground,
           "--secondary": brand.colors.secondary,
           "--background": brand.colors.background,
+          "--card": brand.colors.secondary,
+          "--popover": brand.colors.secondary,
           "--ring": brand.colors.primary,
           "--gold": brand.colors.gold,
         } as React.CSSProperties

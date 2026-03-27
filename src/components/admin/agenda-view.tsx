@@ -53,9 +53,10 @@ function getDateLabel(dateStr: string): string {
 }
 
 const statusColors: Record<string, string> = {
-  CONFIRMED: "bg-green-500/10 text-green-500 border-green-500/20",
-  CANCELLED: "bg-red-500/10 text-red-500 border-red-500/20",
-  COMPLETED: "bg-blue-500/10 text-blue-500 border-blue-500/20",
+  CONFIRMED: "bg-primary/10 text-primary border-primary/20",
+  CANCELLED: "bg-destructive/10 text-destructive border-destructive/20",
+  COMPLETED:
+    "bg-secondary/50 text-secondary-foreground border-border",
 };
 
 const statusLabels: Record<string, string> = {

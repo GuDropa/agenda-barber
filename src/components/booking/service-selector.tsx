@@ -29,7 +29,7 @@ export function ServiceSelector({
               <Card
                 key={service.id}
                 className={cn(
-                  "cursor-pointer transition-all duration-200 active:scale-[0.98]",
+                  "cursor-pointer transition-all duration-200 active:scale-[0.98] ring-primary/15",
                   isSelected
                     ? "border-primary bg-primary/5 ring-1 ring-primary"
                     : "border-border hover:border-primary/50"
@@ -57,8 +57,8 @@ export function ServiceSelector({
                     </div>
                   </div>
                   <Badge
-                    variant="secondary"
-                    className="text-base font-semibold shrink-0 ml-4"
+                    variant="outline"
+                    className="text-base font-semibold shrink-0 ml-4 border-primary/35 text-primary"
                   >
                     R$ {service.price}
                   </Badge>
