@@ -62,6 +62,7 @@ Se as variáveis de ambiente da Uazapi não estiverem configuradas, o sistema en
 ### 3. Rodar em ambiente de desenvolvimento
 
 ```bash
+npm install
 npm run dev
 ```
 
