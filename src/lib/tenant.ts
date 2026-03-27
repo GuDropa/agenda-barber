@@ -2,6 +2,7 @@ import { headers } from "next/headers";
 import { brand as defaultBrand } from "@/config/brand";
 import type { Brand } from "@/config/brand";
 import { listRecords } from "./airtable";
+import { normalizeExternalImageUrl } from "./utils";
 
 /** Garante hex válido quando o Airtable envia sem `#` ou com espaços. */
 function normalizeColor(value: string | undefined): string | undefined {
@@ -53,7 +54,9 @@ export async function getBrandForHost(host: string): Promise<Brand> {
   return {
     name: fields.Name || defaultBrand.name,
     tagline: fields.Tagline || defaultBrand.tagline,
-    logo: fields.LogoUrl || defaultBrand.logo,
+    logo: fields.LogoUrl
+      ? normalizeExternalImageUrl(fields.LogoUrl)
+      : defaultBrand.logo,
     colors: {
       primary:
         normalizeColor(fields.PrimaryColor) ?? defaultBrand.colors.primary,

@@ -4,6 +4,7 @@ import { Montserrat } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 import { getCurrentBrand } from "@/lib/tenant";
+import { mutedSurfaceFromBrand } from "@/lib/utils";
 
 const montserrat = Montserrat({
   variable: "--font-montserrat",
@@ -49,6 +50,10 @@ export default async function RootLayout({
           "--popover": brand.colors.secondary,
           "--ring": brand.colors.primary,
           "--gold": brand.colors.gold,
+          "--muted": mutedSurfaceFromBrand(
+            brand.colors.background,
+            brand.colors.primary
+          ),
         } as React.CSSProperties
       }
     >

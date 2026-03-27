@@ -2,6 +2,10 @@
 
 import Image from "next/image";
 import { brand } from "@/config/brand";
+import {
+  normalizeExternalImageUrl,
+  shouldBypassNextImageOptimization,
+} from "@/lib/utils";
 
 type HeroSectionProps = {
   name?: string;
@@ -16,14 +20,17 @@ export function HeroSection(props: HeroSectionProps) {
     logo: props.logo ?? brand.logo,
   };
 
+  const logoSrc = normalizeExternalImageUrl(currentBrand.logo);
+
   return (
     <section className="relative px-6 pt-12 pb-8 text-center">
       <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-primary/10 ring-1 ring-primary/20 mb-4">
         <Image
-          src={currentBrand.logo}
+          src={logoSrc}
           alt={currentBrand.name}
           width={80}
           height={80}
+          unoptimized={shouldBypassNextImageOptimization(logoSrc)}
         />
       </div>
       <h1 className="text-3xl font-bold tracking-tight">
