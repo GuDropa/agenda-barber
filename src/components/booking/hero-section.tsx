@@ -24,12 +24,13 @@ export function HeroSection(props: HeroSectionProps) {
 
   return (
     <section className="relative px-6 pt-12 pb-8 text-center">
-      <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-primary/10 ring-1 ring-primary/20 mb-4">
+      <div className="mx-auto mb-4 h-20 w-20 shrink-0 overflow-hidden rounded-full bg-primary/10 ring-1 ring-primary/20">
         <Image
           src={logoSrc}
           alt={currentBrand.name}
           width={80}
           height={80}
+          className="h-full w-full rounded-full object-cover"
           unoptimized={shouldBypassNextImageOptimization(logoSrc)}
         />
       </div>

@@ -2,7 +2,7 @@ import { headers } from "next/headers";
 import { brand as defaultBrand } from "@/config/brand";
 import type { Brand } from "@/config/brand";
 import { listRecords } from "./airtable";
-import { normalizeExternalImageUrl } from "./utils";
+import { normalizeExternalImageUrl, textPairForBackground } from "./utils";
 
 /** Garante hex válido quando o Airtable envia sem `#` ou com espaços. */
 function normalizeColor(value: string | undefined): string | undefined {
@@ -24,6 +24,10 @@ type TenantFields = {
   SecondaryColor?: string;
   BackgroundColor?: string;
   GoldColor?: string;
+  /** Texto principal; se vazio, deriva do BackgroundColor (contraste automático). */
+  ForegroundColor?: string;
+  /** Texto secundário; se vazio, deriva do fundo. */
+  MutedForegroundColor?: string;
   Phone?: string;
   Address?: string;
   Instagram?: string;
@@ -50,7 +54,11 @@ export async function getBrandForHost(host: string): Promise<Brand> {
   }
 
   const fields = records[0].fields as TenantFields;
-  
+
+  const background =
+    normalizeColor(fields.BackgroundColor) ?? defaultBrand.colors.background;
+  const textPair = textPairForBackground(background);
+
   return {
     name: fields.Name || defaultBrand.name,
     tagline: fields.Tagline || defaultBrand.tagline,
@@ -65,8 +73,11 @@ export async function getBrandForHost(host: string): Promise<Brand> {
         defaultBrand.colors.primaryForeground,
       secondary:
         normalizeColor(fields.SecondaryColor) ?? defaultBrand.colors.secondary,
-      background:
-        normalizeColor(fields.BackgroundColor) ?? defaultBrand.colors.background,
+      background,
+      foreground:
+        normalizeColor(fields.ForegroundColor) ?? textPair.foreground,
+      mutedForeground:
+        normalizeColor(fields.MutedForegroundColor) ?? textPair.mutedForeground,
       gold: normalizeColor(fields.GoldColor) ?? defaultBrand.colors.gold,
     },
     contact: {

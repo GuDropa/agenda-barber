@@ -92,10 +92,10 @@ export function CalendarPicker({
               className={cn(
                 "flex flex-col items-center justify-center min-w-[4.5rem] h-[5.5rem] rounded-xl border-2 transition-all duration-200 shrink-0 cursor-pointer",
                 isOff
-                  ? "opacity-40 cursor-not-allowed border-transparent bg-muted"
+                  ? "opacity-40 cursor-not-allowed border-transparent bg-muted text-muted-foreground"
                   : isSelected
                     ? "border-primary bg-primary/10 text-primary"
-                    : "border-transparent bg-card hover:border-primary/30 active:scale-95",
+                    : "border-transparent bg-card text-foreground hover:border-primary/30 active:scale-95",
                 isToday(day) && !isSelected && !isOff && "border-primary/30"
               )}
             >

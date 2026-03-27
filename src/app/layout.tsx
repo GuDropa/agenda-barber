@@ -4,7 +4,7 @@ import { Montserrat } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 import { getCurrentBrand } from "@/lib/tenant";
-import { mutedSurfaceFromBrand } from "@/lib/utils";
+import { borderMixFromBrand, mutedSurfaceFromBrand } from "@/lib/utils";
 
 const montserrat = Montserrat({
   variable: "--font-montserrat",
@@ -35,6 +35,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const brand = await getCurrentBrand();
+  const { foreground: fg, background: bg } = brand.colors;
 
   return (
     <html
@@ -45,15 +46,21 @@ export default async function RootLayout({
           "--primary": brand.colors.primary,
           "--primary-foreground": brand.colors.primaryForeground,
           "--secondary": brand.colors.secondary,
-          "--background": brand.colors.background,
+          "--background": bg,
+          "--foreground": fg,
+          "--muted-foreground": brand.colors.mutedForeground,
           "--card": brand.colors.secondary,
           "--popover": brand.colors.secondary,
+          "--card-foreground": fg,
+          "--popover-foreground": fg,
+          "--secondary-foreground": fg,
+          "--accent": mutedSurfaceFromBrand(bg, brand.colors.primary),
+          "--accent-foreground": fg,
+          "--border": borderMixFromBrand(fg, bg),
+          "--input": borderMixFromBrand(fg, bg),
           "--ring": brand.colors.primary,
           "--gold": brand.colors.gold,
-          "--muted": mutedSurfaceFromBrand(
-            brand.colors.background,
-            brand.colors.primary
-          ),
+          "--muted": mutedSurfaceFromBrand(bg, brand.colors.primary),
         } as React.CSSProperties
       }
     >

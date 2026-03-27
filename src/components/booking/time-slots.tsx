@@ -65,7 +65,7 @@ export function TimeSlots({
                 ? "opacity-30 cursor-not-allowed bg-muted line-through"
                 : selectedTime === slot.time
                   ? "bg-primary text-primary-foreground ring-2 ring-primary ring-offset-2 ring-offset-background"
-                  : "bg-card border border-border hover:border-primary/50 active:scale-95"
+                  : "bg-card text-foreground border border-border hover:border-primary/50 active:scale-95"
             )}
           >
             {slot.time}

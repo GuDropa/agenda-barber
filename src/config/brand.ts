@@ -7,6 +7,8 @@ export const brand = {
     primaryForeground: "#1a1a1a",
     secondary: "#2a2a2a",
     background: "#0d0d12",
+    foreground: "#f5f5f5",
+    mutedForeground: "#a3a3a3",
     gold: "#d4a853",
   },
   contact: {
@@ -31,6 +33,10 @@ export type Brand = {
     primaryForeground: string;
     secondary: string;
     background: string;
+    /** Texto principal (títulos, corpo, botão ghost). */
+    foreground: string;
+    /** Texto secundário (subtítulos, hints). */
+    mutedForeground: string;
     gold: string;
   };
   contact: {
