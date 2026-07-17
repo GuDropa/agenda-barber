@@ -30,6 +30,12 @@ AIRTABLE_BASE_ID=appXXXXXXXXXXXX
 UAZAPI_BASE_URL=https://free.uazapi.com
 UAZAPI_INSTANCE_TOKEN=seu_token_da_instancia
 
+# Google Calendar (opcional)
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+GOOGLE_OAUTH_REDIRECT_URI=
+GOOGLE_CALENDAR_ID=primary
+
 # Next.js / Evolução futura
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
 ```
@@ -58,6 +64,32 @@ O cliente HTTP da Uazapi está em `src/lib/uazapi.ts` e é usado por `src/lib/no
 - Avisar o cliente sobre cancelamentos.
 
 Se as variáveis de ambiente da Uazapi não estiverem configuradas, o sistema entra em **modo simulação** e apenas loga as mensagens no servidor (sem disparar no WhatsApp).
+
+#### Google Calendar (integração com a agenda do barbeiro)
+
+A integração adiciona **automaticamente** cada novo agendamento à agenda Google do barbeiro, com um lembrete popup (notificação). É **write-only**: o app só cria eventos, nunca lê a agenda do barbeiro.
+
+Enquanto `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET` não estiverem preenchidos, a integração fica em **modo simulação** (apenas loga `[Google] ...` no servidor) e o botão "Conectar" aparece desabilitado. Assim que as chaves forem preenchidas, tudo passa a funcionar sem mudança de código.
+
+Passo a passo no [Google Cloud Console](https://console.cloud.google.com/):
+
+1. Crie (ou selecione) um projeto.
+2. Em **APIs e Serviços → Biblioteca**, ative a **Google Calendar API**.
+3. Em **Tela de permissão OAuth**, configure o app (tipo Externo) e adicione os escopos `https://www.googleapis.com/auth/calendar.events` e `email` (o `email` serve só para exibir qual conta está conectada no painel). Adicione o e-mail do barbeiro como usuário de teste (ou publique o app).
+4. Em **Credenciais → Criar credenciais → ID do cliente OAuth → Aplicativo da Web**:
+   - **URIs de redirecionamento autorizados**: adicione `http://localhost:3000/api/google/callback` (dev) e `https://SEU_DOMINIO/api/google/callback` (produção).
+5. Copie o **Client ID** e **Client Secret** para o `.env.local` (`GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`).
+6. `GOOGLE_OAUTH_REDIRECT_URI` é **opcional** — se vazio, é derivado do host da requisição (`<host>/api/google/callback`). Preencha apenas se o app estiver atrás de proxy e o host detectado não bater com o registrado no Google.
+7. `GOOGLE_CALENDAR_ID` é opcional (padrão `primary`, a agenda principal do barbeiro).
+
+Uso pelo barbeiro: no painel `/admin`, aba **Agenda**, clique em **Conectar** acima da lista. Ele autoriza na conta Google e volta para o painel. Também é possível ajustar quantos **minutos antes** o lembrete dispara (padrão 30).
+
+Detalhes técnicos:
+
+- Camada REST pura (OAuth + `events.insert` via `fetch`): `src/lib/google-calendar.ts`.
+- Orquestração por tenant (lê a config e cria o evento): `src/lib/google-sync.ts`, disparado em `createAppointment` (`src/app/actions/appointments.ts`) como fire-and-forget — falhas **não** bloqueiam o agendamento.
+- O **refresh token** do barbeiro, os minutos do lembrete e o e-mail da conta conectada ficam no registro do tenant na tabela `Tenants` (base do `AIRTABLE_BASE_ID`), nos campos `GoogleRefreshToken` (texto), `GoogleReminderMinutes` (número) e `GoogleAccountEmail` (texto). Crie esses campos na tabela `Tenants`.
+- No painel, o barbeiro vê um selo **"Conectada"** e o e-mail da conta quando a conexão está ativa. Se ele conectou antes desta atualização, basta reconectar uma vez para o e-mail aparecer.
 
 ### 3. Rodar em ambiente de desenvolvimento
 

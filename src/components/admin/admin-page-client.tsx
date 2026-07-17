@@ -11,6 +11,7 @@ import { AgendaView } from "@/components/admin/agenda-view";
 import { ServiceManagement } from "@/components/admin/service-management";
 import { ScheduleSettingsForm } from "@/components/admin/schedule-settings";
 import { DayOffManagement } from "@/components/admin/day-off-management";
+import { GoogleCalendarConnect } from "@/components/admin/google-calendar-connect";
 import { Service, Appointment, ScheduleSettings, DayOff } from "@/lib/types";
 import { CalendarDays, Scissors, Settings, ArrowLeft, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -181,6 +182,7 @@ export function AdminPageClient({ brand }: { brand: Brand }) {
         </TabsList>
 
         <TabsContent value="agenda" className="mt-4">
+          <GoogleCalendarConnect />
           <AgendaView
             appointments={appointments}
             onCancelAppointment={handleCancelAppointment}

@@ -65,6 +65,7 @@ export async function listRecords(
   });
 
   if (!response.ok) {
+    console.log(url)
     console.error(`[Airtable] Erro ao listar ${table}:`, await response.text());
     return null;
   }

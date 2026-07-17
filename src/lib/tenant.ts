@@ -1,7 +1,7 @@
 import { headers } from "next/headers";
 import { brand as defaultBrand } from "@/config/brand";
 import type { Brand } from "@/config/brand";
-import { listRecords } from "./airtable";
+import { listRecords, updateRecord } from "./airtable";
 import { normalizeExternalImageUrl, textPairForBackground } from "./utils";
 
 /** Garante hex válido quando o Airtable envia sem `#` ou com espaços. */
@@ -33,7 +33,15 @@ type TenantFields = {
   Instagram?: string;
   /** Base ID do Airtable desse tenant (workspace do barbeiro). Se vazio, usa AIRTABLE_BASE_ID do env. */
   AirtableBaseId?: string;
+  /** Refresh token OAuth do Google Calendar do barbeiro. Server-only, nunca enviado ao cliente. */
+  GoogleRefreshToken?: string;
+  /** Minutos antes do horário para o lembrete popup no Google Calendar. Padrão 30. */
+  GoogleReminderMinutes?: number;
+  /** E-mail da conta Google conectada. Somente exibição no painel. */
+  GoogleAccountEmail?: string;
 };
+
+const DEFAULT_GOOGLE_REMINDER_MINUTES = 30;
 
 function isAirtableConfigured() {
   return Boolean(process.env.AIRTABLE_API_TOKEN && process.env.AIRTABLE_BASE_ID);
@@ -112,5 +120,95 @@ export async function getCurrentTenantBaseId(): Promise<string | null> {
   if (!records || records.length === 0) return null;
   const baseId = (records[0].fields as TenantFields).AirtableBaseId?.trim();
   return baseId || null;
+}
+
+// ============================================================================
+// Google Calendar — config por tenant.
+// A tabela `Tenants` vive na base do env (AIRTABLE_BASE_ID), então leituras e
+// escritas abaixo usam a base padrão (sem override). Server-only.
+// ============================================================================
+
+export interface TenantRecord {
+  id: string;
+  fields: TenantFields;
+}
+
+async function currentHost(): Promise<string> {
+  const headersList = await headers();
+  return headersList.get("host") ?? "localhost";
+}
+
+/** Registro do tenant da requisição atual (id + fields), ou null. */
+export async function getCurrentTenantRecord(): Promise<TenantRecord | null> {
+  if (!isAirtableConfigured()) return null;
+
+  const host = await currentHost();
+  const records = await listRecords("Tenants", {
+    filterByFormula: `{Domain} = '${host}'`,
+    maxRecords: 1,
+  });
+
+  if (!records || records.length === 0) return null;
+  return { id: records[0].id, fields: records[0].fields as TenantFields };
+}
+
+/** Persiste refresh token + conta conectada no registro do tenant atual (V4/V7/V10). */
+export async function saveGoogleConnection(params: {
+  refreshToken: string;
+  accountEmail: string | null;
+}): Promise<boolean> {
+  const record = await getCurrentTenantRecord();
+  if (!record) return false;
+  const updated = await updateRecord("Tenants", record.id, {
+    GoogleRefreshToken: params.refreshToken,
+    GoogleAccountEmail: params.accountEmail ?? "",
+  });
+  return updated !== null;
+}
+
+/** Remove a conexão Google do tenant atual. */
+export async function clearGoogleRefreshToken(): Promise<boolean> {
+  const record = await getCurrentTenantRecord();
+  if (!record) return false;
+  const updated = await updateRecord("Tenants", record.id, {
+    GoogleRefreshToken: "",
+    GoogleAccountEmail: "",
+  });
+  return updated !== null;
+}
+
+/** Ajusta os minutos de antecedência do lembrete popup. */
+export async function saveGoogleReminderMinutes(
+  minutes: number
+): Promise<boolean> {
+  const record = await getCurrentTenantRecord();
+  if (!record) return false;
+  const updated = await updateRecord("Tenants", record.id, {
+    GoogleReminderMinutes: minutes,
+  });
+  return updated !== null;
+}
+
+export interface TenantGoogleConfig {
+  refreshToken: string | null;
+  reminderMinutes: number;
+  accountEmail: string | null;
+}
+
+/** Config Google do tenant atual (refresh token + minutos do lembrete + conta). */
+export async function getGoogleConfigForCurrentTenant(): Promise<TenantGoogleConfig | null> {
+  const record = await getCurrentTenantRecord();
+  if (!record) return null;
+  const fields = record.fields;
+  return {
+    refreshToken:
+      (fields.GoogleRefreshToken as string | undefined)?.trim() || null,
+    reminderMinutes:
+      typeof fields.GoogleReminderMinutes === "number"
+        ? fields.GoogleReminderMinutes
+        : DEFAULT_GOOGLE_REMINDER_MINUTES,
+    accountEmail:
+      (fields.GoogleAccountEmail as string | undefined)?.trim() || null,
+  };
 }
 

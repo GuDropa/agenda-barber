@@ -6,6 +6,7 @@ import { Appointment, BookingData } from "@/lib/types";
 import { mockAppointments } from "@/lib/mock-data";
 import { format, addDays } from "date-fns";
 import { NotificationService } from "@/lib/notifications";
+import { syncAppointmentToGoogleCalendar } from "@/lib/google-sync";
 
 function mapRecord(record: airtable.AirtableRecord): Appointment {
   const f = record.fields;
@@ -97,6 +98,10 @@ export async function createAppointment(data: {
   // Erros de notificação não impedem a criação do agendamento.
   void NotificationService.sendBookingConfirmation(booking);
   void NotificationService.notifyBarber(booking);
+
+  // Adiciona o agendamento à agenda Google do barbeiro (write-only).
+  // Fire-and-forget: falhas são engolidas e não bloqueiam o agendamento (§V1/§V8).
+  void syncAppointmentToGoogleCalendar(appointment);
 
   return appointment;
 }
