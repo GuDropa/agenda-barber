@@ -91,6 +91,23 @@ Detalhes técnicos:
 - O **refresh token** do barbeiro, os minutos do lembrete e o e-mail da conta conectada ficam no registro do tenant na tabela `Tenants` (base do `AIRTABLE_BASE_ID`), nos campos `GoogleRefreshToken` (texto), `GoogleReminderMinutes` (número) e `GoogleAccountEmail` (texto). Crie esses campos na tabela `Tenants`.
 - No painel, o barbeiro vê um selo **"Conectada"** e o e-mail da conta quando a conexão está ativa. Se ele conectou antes desta atualização, basta reconectar uma vez para o e-mail aparecer.
 
+#### Acesso ao painel admin (senha por barbeiro)
+
+O painel `/admin` é protegido por uma **senha por tenant**, guardada no campo `AdminPassword` da tabela `Tenants` (mesma base do `AIRTABLE_BASE_ID`). Crie esse campo (tipo texto) e defina a senha de cada barbeiro no registro dele.
+
+Fluxo de uso:
+
+- Na página inicial (`/`) há um **ícone de cadeado discreto no canto superior direito** que leva ao painel.
+- Ao entrar em `/admin`, o barbeiro digita a senha do seu cadastro. Só com a senha correta o painel abre.
+- Depois de acertar a senha uma vez, o navegador guarda o desbloqueio no **localStorage** (chave `agenda-barber:admin-unlocked`), então **não é preciso digitar de novo** nas próximas visitas. O botão **"Sair"** (ícone no cabeçalho do painel) limpa esse desbloqueio e volta a pedir a senha.
+
+Observações:
+
+- A senha nunca é enviada ao navegador: uma _server action_ (`src/app/actions/auth.ts`) apenas **compara** o que foi digitado e devolve verdadeiro/falso.
+- Como o localStorage é isolado por domínio, cada barbeiro (no seu domínio) tem seu próprio desbloqueio — a senha de um não abre o painel de outro.
+- Se o Airtable **não** estiver configurado (ambiente de desenvolvimento/marca padrão), o portão fica **aberto** para não travar o dev. Se o tenant existir mas estiver **sem** `AdminPassword`, o painel mostra "acesso não configurado".
+- Este é um **bloqueio de conveniência**, não uma barreira de segurança forte: a rota `/admin` continua acessível pela URL direta (o controle vive no navegador, via localStorage, conforme pedido). Para um bloqueio no servidor seria necessário cookie + middleware.
+
 ### 3. Rodar em ambiente de desenvolvimento
 
 ```bash

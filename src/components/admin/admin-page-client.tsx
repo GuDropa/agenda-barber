@@ -13,8 +13,9 @@ import { ScheduleSettingsForm } from "@/components/admin/schedule-settings";
 import { DayOffManagement } from "@/components/admin/day-off-management";
 import { GoogleCalendarConnect } from "@/components/admin/google-calendar-connect";
 import { Service, Appointment, ScheduleSettings, DayOff } from "@/lib/types";
-import { CalendarDays, Scissors, Settings, ArrowLeft, Loader2 } from "lucide-react";
+import { CalendarDays, Scissors, Settings, ArrowLeft, Loader2, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { clearAdminUnlocked } from "@/components/admin/admin-gate";
 import Link from "next/link";
 import { toast } from "sonner";
 import {
@@ -67,6 +68,12 @@ export function AdminPageClient({ brand }: { brand: Brand }) {
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  // Limpa o desbloqueio e recarrega → o AdminGate volta a pedir a senha (V14).
+  const handleLock = () => {
+    clearAdminUnlocked();
+    window.location.reload();
+  };
 
   const handleCancelAppointment = async (id: string) => {
     const apt = appointments.find((a) => a.id === id);
@@ -159,9 +166,20 @@ export function AdminPageClient({ brand }: { brand: Brand }) {
             <h1 className="font-bold text-lg">{brand.name}</h1>
             <p className="text-xs text-muted-foreground">Painel Administrativo</p>
           </div>
-          <Button variant="ghost" size="icon" render={<Link href="/" />}>
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
+          <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label="Sair do painel"
+              title="Sair do painel"
+              onClick={handleLock}
+            >
+              <LogOut className="h-5 w-5" />
+            </Button>
+            <Button variant="ghost" size="icon" render={<Link href="/" />}>
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+          </div>
         </div>
       </header>
 

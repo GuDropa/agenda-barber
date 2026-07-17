@@ -18,7 +18,8 @@ import {
   DayOff,
 } from "@/lib/types";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, ArrowLeft } from "lucide-react";
+import { ArrowRight, ArrowLeft, Lock } from "lucide-react";
+import Link from "next/link";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { getServices } from "@/app/actions/services";
@@ -213,6 +214,16 @@ export function HomePageClient({ brand }: { brand: Brand }) {
 
   return (
     <main className="min-h-dvh max-w-lg mx-auto pb-28">
+      {/* Acesso discreto ao painel do barbeiro (V16) */}
+      <Link
+        href="/admin"
+        aria-label="Área do barbeiro"
+        title="Área do barbeiro"
+        className="fixed top-3 right-3 z-50 flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground/40 transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+      >
+        <Lock className="h-4 w-4" />
+      </Link>
+
       <HeroSection name={brand.name} tagline={brand.tagline} logo={brand.logo} />
 
       {step !== "success" && <StepIndicator current={step} />}

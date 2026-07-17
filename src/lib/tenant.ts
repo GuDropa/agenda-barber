@@ -39,11 +39,13 @@ type TenantFields = {
   GoogleReminderMinutes?: number;
   /** E-mail da conta Google conectada. Somente exibição no painel. */
   GoogleAccountEmail?: string;
+  /** Senha de acesso ao painel admin do barbeiro. Server-only, nunca enviada ao cliente. */
+  AdminPassword?: string;
 };
 
 const DEFAULT_GOOGLE_REMINDER_MINUTES = 30;
 
-function isAirtableConfigured() {
+export function isAirtableConfigured() {
   return Boolean(process.env.AIRTABLE_API_TOKEN && process.env.AIRTABLE_BASE_ID);
 }
 
@@ -193,6 +195,23 @@ export interface TenantGoogleConfig {
   refreshToken: string | null;
   reminderMinutes: number;
   accountEmail: string | null;
+}
+
+// ============================================================================
+// Admin gate — senha de acesso ao painel, por tenant.
+// A senha vive na tabela `Tenants` (base do env) e é lida somente no servidor.
+// ⊥ deve ser serializada para o cliente (V13). A action `verifyAdminPassword`
+// apenas compara e devolve boolean.
+// ============================================================================
+
+/** Estados possíveis do portão de acesso ao admin (V12/V17). */
+export type AdminGateState = "open" | "required" | "unconfigured";
+
+/** Senha admin do tenant atual (server-only). Null se não configurada. */
+export async function getAdminPasswordForCurrentTenant(): Promise<string | null> {
+  const record = await getCurrentTenantRecord();
+  if (!record) return null;
+  return (record.fields.AdminPassword as string | undefined)?.trim() || null;
 }
 
 /** Config Google do tenant atual (refresh token + minutos do lembrete + conta). */
